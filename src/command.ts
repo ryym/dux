@@ -7,7 +7,7 @@ export type Effect<S> = (
 
 export type Handler0<S> = (state: S) => S | Effect<S>
 export type Handler1<S, P> = (state: S, payload: P) => S | Effect<S>
-type AnyHandler<S, P> = Handler0<S> | Handler1<S, P>;
+export type AnyHandler<S, P> = Handler0<S> | Handler1<S, P>;
 
 export interface Command<S, P = void> {
     name: string

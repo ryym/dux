@@ -2,11 +2,11 @@ import * as React from 'react'
 import contextTypes from './context-types'
 import Store from '../store'
 
-type Props = {
+export type ProviderProps = {
   store: Store<any>
 }
 
-export default class Provider extends React.Component<Props, void> {
+export default class Provider extends React.Component<ProviderProps> {
   static childContextTypes = contextTypes
 
   getChildContext() {

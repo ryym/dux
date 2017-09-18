@@ -12,7 +12,7 @@ export class StateHolder<S> {
   }
 }
 
-interface StoreOptions<S> {
+export interface StoreOptions<S> {
   state?: StateHolder<S>
 }
 
