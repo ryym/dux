@@ -1,4 +1,4 @@
-import { Effect, Command, Handler0, Handler1 } from './command'
+import { Command, Handler0, Handler1 } from './command'
 
 export type Dispatch<S> = (command: Command<S, any>) => void
 
@@ -49,11 +49,8 @@ export default class Store<S> {
       result = (<Handler1<S, any>>handler)(currentState, payload)
     }
 
-    if (result === undefined) {
-      return
-    }
-    else if (result instanceof Effect) {
-      result.process(this.dispatch, this.state.getState)
+    if (typeof result === 'function') {
+      result(this.dispatch, this.state.getState)
       this.notify(currentState, command, { isEffect: true })
     }
     else {

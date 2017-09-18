@@ -1,5 +1,5 @@
-import { effect, Effect, command, Command } from './command'
-import Store, { Subscriber } from './store'
+import { Effect, command, Command } from './command'
+import Store, { Subscriber, Dispatch } from './store'
 import using from './using'
 
 interface State {
@@ -19,26 +19,23 @@ const increment = (state: State) => {
 }
 const Increment = command(increment)
 
-// XXX: こういうの無いと、`effect<State>(dispatch..)`と書く必要がある
-type Effector<P> = (s: State, p: P) => Effect<State>
-
-const addDelay: Effector<{
-  time: number,
-  count?: number
-}> = (state, { time, count = 10 }) => effect(dispatch => {
+const addDelay = (
+  state: State,
+  { time, count = 10 }: { time: number, count?: number }
+): Effect<State> => dispatch => {
   setTimeout(() => {
     dispatch(Add(count))
   }, time)
-})
+}
 const AddDelay = command(addDelay)
 
 // やはりちょっと見づらい。
 const addDelay2 = using(setTimeout)(delay => (
   state: State,
   { time, count = 10 }: { time: number, count?: number }
-) => effect(dispatch => {
+): Effect<State> => dispatch => {
   delay(() => dispatch(Add(count)), time)
-}))
+})
 // using を使わなくても、例えばDI済みのクラスメソッドを
 // command 化する方法もある。
 
@@ -48,13 +45,17 @@ const AddDelay2 = command(addDelay2, 'addDelay2')
 const store = new Store<State>({ count: 0 })
 
 store.subscribe((s: State, c: Command<State, any>) => {
+  switch(c.creator) {
+    case Add:
+    case Increment:
+  }
   console.log('COMMAND', s, c.name)
 })
 
-// store.dispatch(Add(3))
-// store.dispatch(AddDelay({ time: 1000, count: 50 }))
-// store.dispatch(Increment())
-// store.dispatch(AddDelay2({ time: 100, count: 20 }))
+store.dispatch(Add(3))
+store.dispatch(AddDelay({ time: 1000, count: 50 }))
+store.dispatch(Increment())
+store.dispatch(AddDelay2({ time: 100, count: 20 }))
 
 const mockDelay = (f: Function, n:number) => {
   console.log('waited', n, 'seconds')
@@ -62,10 +63,10 @@ const mockDelay = (f: Function, n:number) => {
 }
 
 var ef = addDelay2({ count: 1 }, { time: 1000, count: 100 })
-ef.process(store.dispatch, store.getState)
+ef(store.dispatch, store.getState)
 console.log('hello')
 
 var ef = addDelay2.using(mockDelay)({ count: 1 }, { time: 1000, count: 30 })
-ef.process(store.dispatch, store.getState)
+ef(store.dispatch, store.getState)
 
 console.log('hello')
