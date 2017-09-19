@@ -1,8 +1,8 @@
-// import { Store, command, Dispatch } from './dux'
+import { Store, command, Dispatch } from './dux'
 
-// export type State = {
-//   count: number,
-// }
+export type State = {
+  // count: number,
+}
 
 // const add = (s: State, n: number) => {
 //   s.count += n

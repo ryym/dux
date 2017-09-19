@@ -1,7 +1,14 @@
 import * as React from 'react';
+import { connect } from '../dux-react'
+import { Dispatch } from '../dux'
+import { State } from '../store'
+import { TodoCounts } from '../lib/todo-counts'
 import TodoTextInput from './TodoTextInput';
 
 type Props = {
+  counts: TodoCounts,
+  filter: string,
+  dispatch: Dispatch<State>,
   // addTodo: (title: string) => void
 }
 
@@ -9,7 +16,11 @@ type Props = {
 // TodoList を dump にすると
 // たくさんコールバックを渡さないといけないので。
 
-export default function App() {
+export function App({ counts, filter, dispatch }: Props) {
+  // toggleCompletedAll
+  // deleteCompleted
+  // changeFilter (handleShow)
+
   return (
     null
 
@@ -39,3 +50,12 @@ export default function App() {
     // </div>
   )
 }
+
+export default App
+// export default connect(App, {
+//   mapProps: dispatch => (state: State) => ({
+//     dispatch,
+//     counts: getTodoCounts(state),
+//     filter: getCurrentFilter(state),
+//   })
+// })

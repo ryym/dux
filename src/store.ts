@@ -2,6 +2,15 @@ import { Command, Handler0, Handler1 } from './command'
 
 export type Dispatch<S> = (command: Command<S, any>) => void
 
+// dispatch.of(Add) とかで関数生成できたら書きやすいけど、
+// Command0, Command1といった型分けが必要になる。
+// ただ描画の度に関数生成するのを嫌がるなら
+// クラスのメソッドを生やさないといけないから使えない。
+// export interface Dispatch2<S> {
+//   of<P>(command: Command<S, P>): (p: P) => void
+//   (command: Command<S, any>) => void
+// }
+
 export class StateHolder<S> {
   private state: S;
 

@@ -1,7 +1,8 @@
 import * as React from 'react';
-// import connect from '../connect';
+import { connect } from '../dux-react';
+import { Dispatch } from '../dux'
+import { State } from '../store'
 import TodoItem from './TodoItem';
-// import Footer from './Footer';
 import Todo from '../lib/Todo';
 import { TodoCounts } from '../lib/todo-counts'
 
@@ -10,23 +11,27 @@ type Props = {
   filter: string,
   editedId?: number,
   counts: TodoCounts,
+  dispatch: Dispatch<State>,
 
   // XXX: too many callbacks
-  updateTodo: (id: number, title: string) => void,
-  deleteTodo: (id: number) => void,
-  deleteCompleted: () => void,
-  changeFilter: (filter: string) => void,
-  toggleCompleted: (id: number) => void,
-  toggleCompletedAll: () => void,
-  startEditing: (id: number) => void,
-  finishEditing: () => void,
+  // updateTodo: (id: number, title: string) => void,
+  // deleteTodo: (id: number) => void,
+  // deleteCompleted: () => void,
+  // changeFilter: (filter: string) => void,
+  // toggleCompleted: (id: number) => void,
+  // toggleCompletedAll: () => void,
+  // startEditing: (id: number) => void,
+  // finishEditing: () => void,
 }
 
-export default class TodoList extends React.Component<Props> {
-  handleShow = (filter: string) => {
-    this.props.changeFilter(filter);
-  }
-
+export class TodoList extends React.Component<Props> {
+  // XXX: どうするのがいいのか
+  //   1. props として各関数を受け取って呼び出すだけ
+  //   2. dispatch だけ受け取って後は内部でやっちゃう
+  //   3. この場合分けを包んだ command を用意する
+  // 1 が一番きれいだとは思うけど、渡す関数を変えて再利用するようなケースじゃなければ、
+  // ロジックはStoreにまかせて dispatch だけする 2 でも別におかしくはない。
+  // 3 もロジックが微妙にViewに属している気がして何ともいえない。
   handleTodoSave = (id: number, title: string) => {
     if (title.length === 0) {
       this.props.deleteTodo(id);
@@ -36,33 +41,6 @@ export default class TodoList extends React.Component<Props> {
     }
     this.props.finishEditing();
   }
-
-  // renderToggleAll(toggleCompletedAll: () => void, counts: TodoCounts) {
-  //   if (counts.all > 0) {
-  //     return (
-  //       <input
-  //         className="toggle-all"
-  //         type="checkbox"
-  //         checked={counts.active === 0}
-  //         onChange={toggleCompletedAll}
-  //       />
-  //     );
-  //   }
-  // }
-
-  // renderFooter(filter: string, counts: TodoCounts, deleteCompleted: () => void) {
-  //   if (counts.all) {
-  //     return (
-  //       <Footer
-  //         completedCount={counts.completed}
-  //         activeCount={counts.active}
-  //         filter={filter}
-  //         onClearCompleted={deleteCompleted}
-  //         onShow={this.handleShow}
-  //       />
-  //     );
-  //   }
-  // }
 
   render() {
     const { filter, counts, todos, editedId, ...props } = this.props;
