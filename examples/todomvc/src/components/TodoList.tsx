@@ -4,13 +4,21 @@ import { Dispatch } from '../dux'
 import { State } from '../store'
 import TodoItem from './TodoItem';
 import Todo from '../lib/Todo';
-import { TodoCounts } from '../lib/todo-counts'
+import {
+  getFilteredTodos,
+  DeleteTodo,
+  UpdateTodo,
+  ToggleCompleted,
+} from '../store/todos'
+import {
+  StartEditing,
+  FinishEditing,
+} from '../store/input'
 
 type Props = {
   todos: Todo[],
   filter: string,
-  editedId?: number,
-  counts: TodoCounts,
+  editedId: number | null,
   dispatch: Dispatch<State>,
 
   // XXX: too many callbacks
@@ -25,25 +33,8 @@ type Props = {
 }
 
 export class TodoList extends React.Component<Props> {
-  // XXX: どうするのがいいのか
-  //   1. props として各関数を受け取って呼び出すだけ
-  //   2. dispatch だけ受け取って後は内部でやっちゃう
-  //   3. この場合分けを包んだ command を用意する
-  // 1 が一番きれいだとは思うけど、渡す関数を変えて再利用するようなケースじゃなければ、
-  // ロジックはStoreにまかせて dispatch だけする 2 でも別におかしくはない。
-  // 3 もロジックが微妙にViewに属している気がして何ともいえない。
-  handleTodoSave = (id: number, title: string) => {
-    if (title.length === 0) {
-      this.props.deleteTodo(id);
-    }
-    else {
-      this.props.updateTodo(id, title);
-    }
-    this.props.finishEditing();
-  }
-
   render() {
-    const { filter, counts, todos, editedId, ...props } = this.props;
+    const { filter, todos, editedId } = this.props;
 
     return (
       <ul className="todo-list">
@@ -52,16 +43,46 @@ export class TodoList extends React.Component<Props> {
             key={todo.id}
             todo={todo}
             editing={todo.id === editedId}
-            onDeleteClick={props.deleteTodo}
-            onCompletedToggle={props.toggleCompleted}
-            onEditStart={props.startEditing}
-            onEditEnd={this.handleTodoSave}
+            onDeleteClick={this.deleteTodo}
+            onCompletedToggle={this.toggleCompleted}
+            onEditStart={this.startEditing}
+            onEditEnd={this.updateOrDelete}
           />
         )}
       </ul>
     );
   }
+
+  deleteTodo = (id: number) => this.props.dispatch(DeleteTodo(id))
+  toggleCompleted = (id: number) => this.props.dispatch(ToggleCompleted(id))
+  startEditing = (id: number) => this.props.dispatch(StartEditing(id))
+
+  // XXX: どうするのがいいのか
+  //   1. props として各関数を受け取って呼び出すだけ
+  //   2. dispatch だけ受け取って後は内部でやっちゃう
+  //   3. この場合分けを包んだ command を用意する
+  // 1 が一番きれいだとは思うけど、渡す関数を変えて再利用するようなケースじゃなければ、
+  // ロジックはStoreにまかせて dispatch だけする 2 でも別におかしくはない。
+  // 3 もロジックが微妙にViewに属している気がして何ともいえない。
+  updateOrDelete = (id: number, title: string) => {
+    const { dispatch } = this.props
+    if (title.length === 0) {
+      dispatch(DeleteTodo(id))
+    } else {
+      dispatch(UpdateTodo({ id, title }))
+    }
+    dispatch(FinishEditing())
+  }
 }
+
+export default connect(TodoList, {
+  mapProps: dispatch => (state: State) => ({
+    dispatch,
+    todos: getFilteredTodos(state),
+    filter: state.filter, 
+    editedId: state.editedId,
+  })
+})
 
 // const propsMapper = ({ inputs, todoList, getFilteredTodos }: AppState) => {
 //   const toggleCompletedAll = (): void => {

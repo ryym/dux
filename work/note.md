@@ -18,3 +18,5 @@ View (dumb) Componentに`dispatch`を渡したくなければそこはコール�
 `dispatch`をモックすればテストもできる。
 
 Reduxだとアクションを動的に`dispatch`にマップできるけど、型定義する場合はやっぱり面倒なはず。
+でもTSの Mapped Type とか使えば何とか型付けはできるかも。ならそれもあり。
+

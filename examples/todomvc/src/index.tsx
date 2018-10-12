@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { render } from 'react-dom'
 import { Provider } from './dux-react'
-// import store from './store'
+import { makeStore } from './store'
 import App from './components/App'
 
-import './components/TodoTextInput'
-import './components/Header'
-import './components/Footer'
-import './components/TodoItem'
-import './components/TodoList'
+const store = makeStore()
 
-// render(
-//   <Provider store={store}>
-//     <App />
-//   </Provider>,
-//   document.getElementById('root')
-// )
+store.subscribe((state: any, c: any) => {
+  console.log(state, c)
+})
+
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
 

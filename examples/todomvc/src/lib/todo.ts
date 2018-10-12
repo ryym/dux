@@ -11,9 +11,9 @@ export default class Todo {
     return new Todo(id, props);
   }
 
-  readonly id: number;
-  readonly title: string;
-  readonly completed: boolean;
+  id: number;
+  title: string;
+  completed: boolean;
 
   constructor(id: number, { title, completed = false }: InitialProps) {
     this.id = id;
